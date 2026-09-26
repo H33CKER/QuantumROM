@@ -449,7 +449,7 @@ PREPARE_PARTITIONS() {
     if [ -z "$STOCK_DEVICE" ] || [ "$STOCK_DEVICE" = "None" ]; then
         local BUILD_PARTITIONS="odm,odm_dlkm,product,system,system_ext,system_dlkm,vendor,vendor_dlkm,odm_a,odm_dlkm_a,product_a,system_a,system_ext_a,system_dlkm_a,vendor_a,vendor_dlkm_a,optics,optics_a"
 	else
-	    local BUILD_PARTITIONS="product,system_ext,system"
+	    local BUILD_PARTITIONS="product,system_ext,system,odm"
     fi
 
 	# Delete empty b slot images
@@ -2383,28 +2383,6 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
         fi
     fi
 
-    # ================= IMPORTANT APPS =================
-	echo "- Adding Samsung Important Apps."
-
-    if [ ! -f "${QT_DIR}/QuantumROM/Mods/Apps/Samsung_Important_Apps_Android_${ANDROID_VERSION}.zip" ]; then
-        if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
-            wget -q --no-check-certificate\
-                "https://github.com/SN-Abdullah-Al-Noman/Samsung_Special/releases/download/Android_${ANDROID_VERSION}/Samsung_Important_Apps_Android_${ANDROID_VERSION}.zip" \
-               -O "${QT_DIR}/QuantumROM/Mods/Apps/Samsung_Important_Apps_Android_${ANDROID_VERSION}.zip"
-        else
-            echo "No internet connection available. Unable to download: Samsung_Important_Apps_Android_${ANDROID_VERSION}.zip"
-            return 0
-        fi
-    fi
-
-    if [ -s "${QT_DIR}/QuantumROM/Mods/Apps/Samsung_Important_Apps_Android_${ANDROID_VERSION}.zip" ]; then
-        rm -rf "${QT_DIR}/QuantumROM/Mods/Apps/Samsung_Important_Apps_Android_${ANDROID_VERSION}"
-        unzip -o "${QT_DIR}/QuantumROM/Mods/Apps/Samsung_Important_Apps_Android_${ANDROID_VERSION}.zip" \
-            -d "${QT_DIR}/QuantumROM/Mods/Apps/Samsung_Important_Apps_Android_${ANDROID_VERSION}" >/dev/null 2>&1
-
-        cp -rfa "${QT_DIR}/QuantumROM/Mods/Apps/Samsung_Important_Apps_Android_${ANDROID_VERSION}/." "${EXTRACTED_FIRM_DIR}/"
-    fi
-
     chmod -R u+rwX "$EXTRACTED_FIRM_DIR"
 }
 
@@ -2420,15 +2398,6 @@ APPLY_CUSTOM_FEATURES() {
 	local EXTRACTED_FIRM_DIR="$1"
 
 	echo -e "Applying usefull features."
-
-    if [ -d "${QT_DIR}/QuantumROM/usefull_things" ]; then
-        cp -a "${QT_DIR}/QuantumROM/usefull_things/." "${QT_DIR}/OUT"
-    fi
-
-	if [ ! -d "${EXTRACTED_FIRM_DIR}/system" ]; then
-		echo "- No extracted firmware found."
-        return 1
-    fi
 
 	echo -e "- Adding build prop tweak."
 	BUILD_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.product.locale" "en-US"
